@@ -64,7 +64,7 @@ For full NordVPN application help, run 'nordvpn --help' or 'man nordvpn'.
 
 ## Prerequisites
 
-- NordVPN CLI installed (\`nordvpn\` command must be available).
+- NordVPN CLI installed (`nordvpn` command must be available).
 - A terminal that supports ANSI colors for the best experience.
 
 ## License

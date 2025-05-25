@@ -63,12 +63,84 @@ show_help() {
     echo -e "    '${YELLOW}nvpn.sh p2p sweden stockholm${NC}' runs '${ORANGE}nordvpn c --group p2p sweden stockholm${NC}'"
     echo -e "  ${YELLOW}nvpn.sh d${NC}                  : Disconnects from VPN (runs '${ORANGE}nordvpn d${NC}')"
     echo -e "  ${YELLOW}nvpn.sh status${NC}             : Shows connection status (runs '${ORANGE}nordvpn status${NC}')"
+    echo -e "  ${YELLOW}nvpn.sh --install${NC}          : Installs the script by creating a symlink in a bin directory"
     echo -e "  ${YELLOW}nvpn.sh --update-default <command>${NC} : Updates the default command to the specified command"
     echo -e "    '${YELLOW}nvpn.sh --update-default nordvpn c --group p2p uk${NC}' updates the default command"
     echo -e "  ${YELLOW}nvpn.sh --reset-default${NC}    : Resets the default command to '${ORANGE}nordvpn c --group p2p us${NC}'"
     echo -e "  ${YELLOW}nvpn.sh --help${NC}             : Shows this help message"
     echo ""
     echo -e "For full NordVPN application help, run '${ORANGE}nordvpn --help${NC}' or '${ORANGE}man nordvpn${NC}'."
+}
+
+# Function to find a suitable bin directory in $PATH
+find_bin_dir() {
+    # List of preferred bin directories to check
+    local bin_dirs=("/usr/local/bin" "/usr/bin" "$HOME/bin")
+    
+    for dir in "${bin_dirs[@]}"; do
+        # Check if the directory exists
+        if [ -d "$dir" ]; then
+            # Check if the directory is in $PATH
+            if echo "$PATH" | grep -q "$dir"; then
+                # Check if the directory is writable by the user
+                if [ -w "$dir" ]; then
+                    echo "$dir"
+                    return 0
+                fi
+            fi
+        fi
+    done
+    
+    # If no writable directory is found, provide instructions
+    echo "No writable bin directory found in \$PATH."
+    echo "You can either:"
+    echo "1. Run this script with sudo to create a symlink in /usr/local/bin:"
+    echo "   sudo ln -s $(realpath "$0") /usr/local/bin/nvpn"
+    echo "2. Manually place the script in a directory in your \$PATH:"
+    echo "   chmod +x $(realpath "$0")"
+    echo "   mv $(realpath "$0") /path/to/bin/nvpn"
+    echo "   (e.g., /usr/local/bin or ~/bin if it's in your \$PATH)"
+    return 1
+}
+
+# Function to install the script by creating a symlink in a bin directory
+install_script() {
+    # Get the absolute path of the script
+    local script_path
+    script_path=$(realpath "$0")
+    
+    # Find a suitable bin directory
+    local bin_dir
+    bin_dir=$(find_bin_dir)
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+    
+    # Check if the script is executable
+    if [ ! -x "$script_path" ]; then
+        echo "Warning: This script ($script_path) is not executable."
+        echo "The symbolic link will be created, but you won't be able to run 'nvpn' until you make the script executable."
+        echo "Please run the following command to fix this:"
+        echo "    chmod +x \"$script_path\""
+    fi
+    
+    # Create the symbolic link
+    local link_path="$bin_dir/nvpn"
+    if [ -e "$link_path" ]; then
+        echo "A file named 'nvpn' already exists in $bin_dir."
+        echo "Would you like to overwrite it? (y/n)"
+        read -r response
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            ln -sf "$script_path" "$link_path"
+            echo "Symbolic link created: $link_path -> $script_path"
+        else
+            echo "Installation aborted."
+            exit 1
+        fi
+    else
+        ln -s "$script_path" "$link_path"
+        echo "Symbolic link created: $link_path -> $script_path"
+    fi
 }
 
 # Function to validate the new default command
@@ -112,9 +184,12 @@ if ! command -v nordvpn &> /dev/null; then
     exit 1
 fi
 
-# Check for --help, --update-default, or --reset-default flags
+# Check for --help, --install, --update-default, or --reset-default flags
 if [[ "$1" == "--help" ]]; then
     show_help
+    exit 0
+elif [[ "$1" == "--install" ]]; then
+    install_script
     exit 0
 elif [[ "$1" == "--update-default" ]]; then
     shift

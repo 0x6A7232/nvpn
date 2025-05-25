@@ -16,7 +16,19 @@ A Bash script to streamline common NordVPN tasks on Linux, such as connecting to
    chmod +x nvpn.sh
    ```
 
-3. Move it to a directory in your \$PATH (e.g., /usr/local/bin):
+3. Run `./nvpn.sh --install`, or manually achieve this by creating a symlink for it in a directory in your $PATH (e.g., /usr/local/bin); alternatively, you can move the script itself there:
+
+   ```bash
+   ./nvpn.sh --install
+   ```
+
+   **OR**
+
+   ```bash
+   ln -s $(pwd)/nvpn.sh /usr/local/bin/nvpn
+   ```
+
+   **OR**
 
    ```bash
    mv nvpn.sh /usr/local/bin/nvpn
@@ -38,8 +50,9 @@ nvpn --help
 
 ## Features
 
-The script provides shortcuts for common NordVPN tasks, making it a timesaver for daily use. 
-Below is the output of `nvpn --help`, which shows the available commands and their functionality:
+The script provides shortcuts for common NordVPN tasks, making it a timesaver for daily use.
+
+Below is the output of the `nvpn --help` command:
 
 ```
 nvpn.sh script usage syntax:
@@ -54,12 +67,13 @@ nvpn.sh script usage syntax:
     'nvpn.sh p2p sweden stockholm' runs 'nordvpn c --group p2p sweden stockholm'
   nvpn.sh d                  : Disconnects from VPN (runs 'nordvpn d')
   nvpn.sh status             : Shows connection status (runs 'nordvpn status')
+  nvpn.sh --install          : Installs the script by creating a symlink in a bin directory
   nvpn.sh --update-default <command> : Updates the default command to the specified command
     'nvpn.sh --update-default nordvpn c --group p2p uk' updates the default command
   nvpn.sh --reset-default    : Resets the default command to 'nordvpn c --group p2p us'
   nvpn.sh --help             : Shows this help message
 
-For full NordVPN application help, run 'nordvpn --help' or 'man nordvpn'.
+For full NordVPN application help, run `nordvpn --help` or `man nordvpn`.
 ```
 
 ## Prerequisites

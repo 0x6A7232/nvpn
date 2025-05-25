@@ -74,20 +74,33 @@ show_help() {
 
 # Function to find a suitable bin directory in $PATH
 find_bin_dir() {
-    # List of preferred bin directories to check
-    local bin_dirs=("/usr/local/bin" "/usr/bin" "$HOME/bin")
+    # Split $PATH into an array using ':' as the delimiter
+    IFS=':' read -ra path_dirs <<< "$PATH"
     
-    for dir in "${bin_dirs[@]}"; do
-        # Check if the directory exists
-        if [ -d "$dir" ]; then
-            # Check if the directory is in $PATH
-            if echo "$PATH" | grep -q "$dir"; then
-                # Check if the directory is writable by the user
-                if [ -w "$dir" ]; then
-                    echo "$dir"
-                    return 0
-                fi
-            fi
+    # Prefer /usr/local/bin and /usr/bin if writable, then check others
+    preferred_dirs=("/usr/local/bin" "/usr/bin")
+    
+    # First, check preferred directories
+    for dir in "${preferred_dirs[@]}"; do
+        if [ -d "$dir" ] && [ -w "$dir" ]; then
+            echo "$dir"
+            return 0
+        fi
+    done
+    
+    # Then, check all directories in $PATH
+    for dir in "${path_dirs[@]}"; do
+        # Skip empty entries and non-directories
+        if [ -z "$dir" ] || [ ! -d "$dir" ]; then
+            continue
+        fi
+        # Skip /usr/local/bin and /usr/bin since we already checked them
+        if [ "$dir" = "/usr/local/bin" ] || [ "$dir" = "/usr/bin" ]; then
+            continue
+        fi
+        if [ -w "$dir" ]; then
+            echo "$dir"
+            return 0
         fi
     done
     
@@ -111,10 +124,18 @@ install_script() {
     
     # Find a suitable bin directory
     local bin_dir
-    bin_dir=$(find_bin_dir)
-    if [ $? -ne 0 ]; then
+    # Capture both the output and the exit status of find_bin_dir
+    bin_dir_output=$(find_bin_dir)
+    find_bin_dir_status=$?
+    
+    if [ $find_bin_dir_status -ne 0 ]; then
+        # If find_bin_dir failed, print its output (the error message) and exit
+        echo "$bin_dir_output"
         exit 1
     fi
+    
+    # If find_bin_dir succeeded, its output is the directory path
+    bin_dir="$bin_dir_output"
     
     # Check if the script is executable
     if [ ! -x "$script_path" ]; then

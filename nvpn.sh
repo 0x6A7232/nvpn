@@ -61,13 +61,13 @@ show_help() {
     echo -e "    '${YELLOW}nvpn.sh p2p brazil${NC}' runs '${ORANGE}nordvpn c --group p2p brazil${NC}'"
     echo -e "  ${YELLOW}nvpn.sh <group> <country> <city>${NC} : Connects to a specific group, country, and city"
     echo -e "    '${YELLOW}nvpn.sh p2p sweden stockholm${NC}' runs '${ORANGE}nordvpn c --group p2p sweden stockholm${NC}'"
-    echo -e "  ${YELLOW}nvpn.sh d${NC}                  : Disconnects from VPN (runs '${ORANGE}nordvpn d${NC}')"
-    echo -e "  ${YELLOW}nvpn.sh status${NC}             : Shows connection status (runs '${ORANGE}nordvpn status${NC}')"
+    echo -e "  ${YELLOW}nvpn.sh d${NC}; ${YELLOW}nvpn.sh disconnect${NC}                  : Disconnects from VPN (runs '${ORANGE}nordvpn d${NC}')"
+    echo -e "  ${YELLOW}nvpn.sh s${NC}; ${YELLOW}nvpn.sh status${NC}             : Shows connection status (runs '${ORANGE}nordvpn status${NC}')"
     echo -e "  ${YELLOW}nvpn.sh --install${NC}          : Installs the script by creating a symlink in a bin directory"
     echo -e "  ${YELLOW}nvpn.sh --update-default <command>${NC} : Updates the default command to the specified command"
     echo -e "    '${YELLOW}nvpn.sh --update-default nordvpn c --group p2p uk${NC}' updates the default command"
     echo -e "  ${YELLOW}nvpn.sh --reset-default${NC}    : Resets the default command to '${ORANGE}nordvpn c --group p2p us${NC}'"
-    echo -e "  ${YELLOW}nvpn.sh --help${NC}             : Shows this help message"
+    echo -e "  ${YELLOW}nvpn.sh help${NC}; ${YELLOW}nvpn.sh --help${NC}             : Shows this help message"
     echo ""
     echo -e "For full NordVPN application help, run '${ORANGE}nordvpn --help${NC}' or '${ORANGE}man nordvpn${NC}'."
 }
@@ -205,8 +205,8 @@ if ! command -v nordvpn &> /dev/null; then
     exit 1
 fi
 
-# Check for --help, --install, --update-default, or --reset-default flags
-if [[ "$1" == "--help" ]]; then
+# Check for help, install, update-default, or reset-default flags
+if [[ "$1" == "help" || "$1" == "--help" ]]; then
     show_help
     exit 0
 elif [[ "$1" == "--install" ]]; then
@@ -246,9 +246,9 @@ case $# in
         eval "$DEFAULT_CONNECT"
         ;;
     1)
-        if [[ "$1" == "d" ]]; then
+        if [[ "$1" == "d" || "$1" == "disconnect" ]]; then
             nordvpn d
-        elif [[ "$1" == "status" ]]; then
+        elif [[ "$1" == "s" || "$1" == "status" ]]; then
             nordvpn status
         else
             echo "Connecting to group: $GROUP"

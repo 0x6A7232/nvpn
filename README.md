@@ -65,13 +65,13 @@ nvpn.sh script usage syntax:
     'nvpn.sh p2p brazil' runs 'nordvpn c --group p2p brazil'
   nvpn.sh <group> <country> <city> : Connects to a specific group, country, and city
     'nvpn.sh p2p sweden stockholm' runs 'nordvpn c --group p2p sweden stockholm'
-  nvpn.sh d                  : Disconnects from VPN (runs 'nordvpn d')
-  nvpn.sh status             : Shows connection status (runs 'nordvpn status')
+  nvpn.sh d; nvpn.sh disconnect                  : Disconnects from VPN (runs 'nordvpn d')
+  nvpn.sh s; nvpn.sh status             : Shows connection status (runs 'nordvpn status')
   nvpn.sh --install          : Installs the script by creating a symlink in a bin directory
   nvpn.sh --update-default <command> : Updates the default command to the specified command
     'nvpn.sh --update-default nordvpn c --group p2p uk' updates the default command
   nvpn.sh --reset-default    : Resets the default command to 'nordvpn c --group p2p us'
-  nvpn.sh --help             : Shows this help message
+  nvpn.sh help; nvpn.sh --help             : Shows this help message
 
 For full NordVPN application help, run `nordvpn --help` or `man nordvpn`.
 ```
